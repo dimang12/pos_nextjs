@@ -1,0 +1,38 @@
+name: pos-system
+services:
+- name: web
+  github:
+    branch: main
+    deploy_on_push: true
+    repo: your-username/pos-system
+  build_command: npm run build
+  run_command: node server.js
+  envs:
+  - key: DB_HOST
+    scope: RUN_TIME
+    type: SECRET
+  - key: DB_USER
+    scope: RUN_TIME
+    type: SECRET
+  - key: DB_PASSWORD
+    scope: RUN_TIME
+    type: SECRET
+  - key: DB_NAME
+    scope: RUN_TIME
+    type: SECRET
+  - key: JWT_SECRET
+    scope: RUN_TIME
+    type: SECRET
+  - key: NEXT_PUBLIC_API_URL
+    scope: RUN_TIME
+    type: SECRET
+  http_port: 3000
+  instance_count: 1
+  instance_size_slug: basic-xxs
+  routes:
+  - path: /
+databases:
+- engine: MYSQL
+  name: pos_db
+  production: false
+  version: "8" 

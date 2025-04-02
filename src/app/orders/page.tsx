@@ -23,8 +23,16 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Stack,
 } from '@mui/material';
-import { Add as AddIcon, Visibility as VisibilityIcon } from '@mui/icons-material';
+import { 
+  Add as AddIcon, 
+  Visibility as VisibilityIcon,
+  LocalShipping as LocalShippingIcon,
+  CheckCircle as CheckCircleIcon,
+  Cancel as CancelIcon,
+  Refresh as RefreshIcon,
+} from '@mui/icons-material';
 import Breadcrumb from '@/components/Breadcrumb';
 import { toast } from 'sonner';
 
@@ -42,7 +50,7 @@ interface Order {
   order_number: string;
   customer_name: string | null;
   total_amount: number;
-  status: 'pending' | 'completed' | 'cancelled';
+  status: 'pending' | 'processing' | 'completed' | 'cancelled';
   payment_method: 'cash' | 'card' | 'other';
   created_at: string;
   items: OrderItem[];
@@ -55,6 +63,7 @@ export default function OrdersPage() {
   const [loading, setLoading] = useState(true);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   const fetchOrders = async () => {
     try {
@@ -98,8 +107,120 @@ export default function OrdersPage() {
         return 'success';
       case 'cancelled':
         return 'error';
+      case 'processing':
+        return 'info';
       default:
         return 'warning';
+    }
+  };
+
+  const handleStatusChange = async (newStatus: Order['status']) => {
+    if (!selectedOrder) return;
+
+    setUpdatingStatus(true);
+    try {
+      const response = await fetch(`/api/orders/${selectedOrder.id}/status`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update order status');
+      }
+
+      // Update local state
+      setOrders(orders.map(order => 
+        order.id === selectedOrder.id 
+          ? { ...order, status: newStatus }
+          : order
+      ));
+      setSelectedOrder({ ...selectedOrder, status: newStatus });
+      toast.success(`Order status updated to ${newStatus}`);
+    } catch (error) {
+      console.error('Error updating order status:', error);
+      toast.error('Failed to update order status');
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
+
+  const getStatusActions = (order: Order) => {
+    switch (order.status) {
+      case 'pending':
+        return (
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              color="info"
+              startIcon={<LocalShippingIcon />}
+              onClick={() => handleStatusChange('processing')}
+              disabled={updatingStatus}
+            >
+              Process Delivery
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => handleStatusChange('cancelled')}
+              disabled={updatingStatus}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        );
+      case 'processing':
+        return (
+          <Stack direction="row" spacing={1}>
+            <Button
+              variant="contained"
+              color="success"
+              startIcon={<CheckCircleIcon />}
+              onClick={() => handleStatusChange('completed')}
+              disabled={updatingStatus}
+            >
+              Complete
+            </Button>
+            <Button
+              variant="contained"
+              color="error"
+              startIcon={<CancelIcon />}
+              onClick={() => handleStatusChange('cancelled')}
+              disabled={updatingStatus}
+            >
+              Cancel
+            </Button>
+          </Stack>
+        );
+      case 'completed':
+        return (
+          <Button
+            variant="contained"
+            color="info"
+            startIcon={<RefreshIcon />}
+            onClick={() => handleStatusChange('pending')}
+            disabled={updatingStatus}
+          >
+            Reset to Pending
+          </Button>
+        );
+      case 'cancelled':
+        return (
+          <Button
+            variant="contained"
+            color="info"
+            startIcon={<RefreshIcon />}
+            onClick={() => handleStatusChange('pending')}
+            disabled={updatingStatus}
+          >
+            Reset to Pending
+          </Button>
+        );
+      default:
+        return null;
     }
   };
 
@@ -225,6 +346,7 @@ export default function OrdersPage() {
               </TableContainer>
             </DialogContent>
             <DialogActions>
+              {getStatusActions(selectedOrder)}
               <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
             </DialogActions>
           </>

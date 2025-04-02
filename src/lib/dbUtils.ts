@@ -1,13 +1,19 @@
-import { pool } from './db';
+import mysql from 'mysql2/promise';
+import { RowDataPacket } from 'mysql2';
 
-export async function query(sql: string, params: any[] = []) {
-  try {
-    const [results] = await pool.execute(sql, params);
-    return results;
-  } catch (error) {
-    console.error('Database query error:', error);
-    throw error;
-  }
+const pool = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'next_pos',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+
+export async function query<T extends RowDataPacket[]>(sql: string, params: (string | number | Date)[] = []) {
+  const [rows] = await pool.execute<T>(sql, params);
+  return rows;
 }
 
 export async function insert(table: string, data: Record<string, any>) {
@@ -52,4 +58,6 @@ export async function remove(table: string, where: string, params: any[] = []) {
     console.error('Database delete error:', error);
     throw error;
   }
-} 
+}
+
+export default pool; 

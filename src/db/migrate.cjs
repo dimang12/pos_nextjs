@@ -1,7 +1,6 @@
-import mysql from 'mysql2/promise';
-import bcrypt from 'bcryptjs';
-import * as dotenv from 'dotenv';
-dotenv.config();
+const mysql = require('mysql2/promise');
+const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
 const dbConfig = {
   host: process.env.DB_HOST,
@@ -98,45 +97,6 @@ async function createDatabase() {
       )
     `);
     console.log('Orders table created successfully');
-
-    // Update status enum if needed
-    try {
-      // First, check if the processing status exists
-      const [result] = await connection.query('SELECT status FROM orders WHERE status = "processing" LIMIT 1');
-      if (!result) {
-        // If no processing status exists, update the enum
-        await connection.query(`
-          ALTER TABLE orders 
-          MODIFY COLUMN status ENUM('pending', 'processing', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'
-        `);
-        console.log('Updated orders table status enum to include processing status');
-      }
-    } catch (error) {
-      console.error('Error checking/updating status enum:', error);
-      // If there's an error, try to update the enum directly
-      try {
-        await connection.query(`
-          ALTER TABLE orders 
-          MODIFY COLUMN status ENUM('pending', 'processing', 'completed', 'cancelled') NOT NULL DEFAULT 'pending'
-        `);
-        console.log('Updated orders table status enum to include processing status');
-      } catch (updateError) {
-        console.error('Failed to update status enum:', updateError);
-      }
-    }
-
-    // Alter existing orders table to add customer_id if it doesn't exist
-    try {
-      await connection.query('SELECT customer_id FROM orders LIMIT 1');
-    } catch (error) {
-      // If the column doesn't exist, add it
-      await connection.query(`
-        ALTER TABLE orders
-        ADD COLUMN customer_id INT,
-        ADD FOREIGN KEY (customer_id) REFERENCES customers(id)
-      `);
-      console.log('Added customer_id column to orders table');
-    }
 
     // Create order_items table
     await connection.query(`
