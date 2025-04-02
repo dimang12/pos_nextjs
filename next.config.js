@@ -4,11 +4,7 @@ const nextConfig = {
   images: {
     unoptimized: true,
     domains: ['localhost'],
-  },
-  // Disable server-side features since we're using static export
-  experimental: {
-    appDir: true,
-  },
-};
+  }
+}
 
-module.exports = nextConfig; 
+module.exports = nextConfig 
