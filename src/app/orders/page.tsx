@@ -61,7 +61,12 @@ export default function OrdersPage() {
       const response = await fetch('/api/orders');
       if (!response.ok) throw new Error('Failed to fetch orders');
       const data = await response.json();
-      setOrders(data);
+      const formattedOrders = data.map((order: Order) => ({
+        ...order,
+        total_amount: Number(order.total_amount),
+        items: order.items || []
+      }));
+      setOrders(formattedOrders);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('Failed to fetch orders');

@@ -26,6 +26,7 @@ import {
 } from '@mui/material';
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
 import Breadcrumb from '@/components/Breadcrumb';
+import CustomerSelector from '@/components/orders/CustomerSelector';
 import { toast } from 'sonner';
 
 interface Product {
@@ -50,7 +51,7 @@ export default function NewOrderPage() {
   const [selectedProduct, setSelectedProduct] = useState<number | ''>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [customerName, setCustomerName] = useState('');
+  const [selectedCustomer, setSelectedCustomer] = useState<number | ''>('');
   const [paymentMethod, setPaymentMethod] = useState('cash');
   const [loading, setLoading] = useState(true);
 
@@ -115,6 +116,10 @@ export default function NewOrderPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!selectedCustomer) {
+      toast.error('Please select a customer');
+      return;
+    }
     if (orderItems.length === 0) {
       toast.error('Please add at least one item to the order');
       return;
@@ -127,7 +132,7 @@ export default function NewOrderPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          customer_name: customerName,
+          customerId: selectedCustomer,
           total_amount: orderItems.reduce((sum, item) => sum + item.subtotal, 0),
           payment_method: paymentMethod,
           items: orderItems,
@@ -163,12 +168,9 @@ export default function NewOrderPage() {
                 <Typography variant="h6" gutterBottom>
                   Customer Information
                 </Typography>
-                <TextField
-                  fullWidth
-                  label="Customer Name"
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  margin="normal"
+                <CustomerSelector
+                  value={selectedCustomer}
+                  onChange={setSelectedCustomer}
                 />
                 <FormControl fullWidth margin="normal">
                   <InputLabel>Payment Method</InputLabel>

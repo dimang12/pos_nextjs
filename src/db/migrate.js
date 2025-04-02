@@ -87,15 +87,30 @@ async function createDatabase() {
       CREATE TABLE IF NOT EXISTS orders (
         id INT AUTO_INCREMENT PRIMARY KEY,
         order_number VARCHAR(50) NOT NULL UNIQUE,
+        customer_id INT,
         customer_name VARCHAR(255),
         total_amount DECIMAL(10, 2) NOT NULL,
         status ENUM('pending', 'completed', 'cancelled') NOT NULL DEFAULT 'pending',
         payment_method ENUM('cash', 'card', 'other') NOT NULL DEFAULT 'cash',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        FOREIGN KEY (customer_id) REFERENCES customers(id)
       )
     `);
     console.log('Orders table created successfully');
+
+    // Alter existing orders table to add customer_id if it doesn't exist
+    try {
+      await connection.query('SELECT customer_id FROM orders LIMIT 1');
+    } catch (error) {
+      // If the column doesn't exist, add it
+      await connection.query(`
+        ALTER TABLE orders
+        ADD COLUMN customer_id INT,
+        ADD FOREIGN KEY (customer_id) REFERENCES customers(id)
+      `);
+      console.log('Added customer_id column to orders table');
+    }
 
     // Create order_items table
     await connection.query(`
@@ -112,6 +127,20 @@ async function createDatabase() {
       )
     `);
     console.log('Order items table created successfully');
+
+    // Create customers table
+    await connection.query(`
+      CREATE TABLE IF NOT EXISTS customers (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        name VARCHAR(255) NOT NULL,
+        email VARCHAR(255) UNIQUE,
+        phone VARCHAR(50),
+        address TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+    console.log('Customers table created successfully');
 
   } catch (error) {
     console.error('Migration failed:', error);
