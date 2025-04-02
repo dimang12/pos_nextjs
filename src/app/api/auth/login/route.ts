@@ -4,6 +4,16 @@ import { LoginCredentials, AuthResponse } from '@/types/auth';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
+interface User {
+  id: number;
+  email: string;
+  password: string;
+  name: string;
+  role: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 export async function POST(request: Request) {
@@ -12,7 +22,7 @@ export async function POST(request: Request) {
     const { email, password } = body;
 
     // Get user from database
-    const users = await query('SELECT * FROM users WHERE email = ?', [email]);
+    const users = await query('SELECT * FROM users WHERE email = ?', [email]) as User[];
     const user = users[0];
 
     if (!user) {
@@ -39,7 +49,7 @@ export async function POST(request: Request) {
     );
 
     // Remove password from user object
-    const { password: _, ...userWithoutPassword } = user;
+    const { password: _password, ...userWithoutPassword } = user;
 
     return NextResponse.json<AuthResponse>({
       success: true,

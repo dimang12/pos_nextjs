@@ -8,7 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "node src/db/migrate.cjs"
+    "migrate": "node src/db/migrate.mjs"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.0.0",

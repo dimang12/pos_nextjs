@@ -1,6 +1,7 @@
-const mysql = require('mysql2/promise');
-const bcrypt = require('bcryptjs');
-require('dotenv').config();
+import mysql from 'mysql2/promise';
+import bcrypt from 'bcryptjs';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
 const dbConfig = {
   host: process.env.DB_HOST,
