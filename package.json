@@ -8,10 +8,15 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "node src/db/migrate.mjs"
+    "migrate": "node src/db/migrate.js"
   },
   "dependencies": {
+    "@emotion/cache": "^11.11.0",
+    "@emotion/react": "^11.11.3",
+    "@emotion/styled": "^11.11.0",
     "@hookform/resolvers": "^5.0.0",
+    "@mui/icons-material": "^5.15.11",
+    "@mui/material": "^5.15.11",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
