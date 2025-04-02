@@ -8,18 +8,18 @@ export async function GET() {
     const token = cookieStore.get('token')?.value;
 
     if (!token) {
-      return new NextResponse(null, { status: 401 });
+      return NextResponse.json({ authenticated: false }, { status: 401 });
     }
 
     // Verify the token
     const secret = process.env.JWT_SECRET;
     if (!secret) {
-      throw new Error('JWT_SECRET is not defined');
+      return NextResponse.json({ error: 'JWT_SECRET is not defined' }, { status: 500 });
     }
 
     verify(token, secret);
-    return new NextResponse(null, { status: 200 });
-  } catch {
-    // return new NextResponse(null, { status: 401 });
+    return NextResponse.json({ authenticated: true });
+  } catch (error) {
+    return NextResponse.json({ authenticated: false }, { status: 401 });
   }
 } 

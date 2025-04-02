@@ -4,6 +4,12 @@ const nextConfig = {
   images: {
     unoptimized: true,
     domains: ['localhost'],
+  },
+  experimental: {
+    // Exclude API routes from static export
+    outputFileTracingExcludes: {
+      '/api/**/*': ['./node_modules/**/*'],
+    },
   }
 }
 
