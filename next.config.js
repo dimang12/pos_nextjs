@@ -1,6 +1,14 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  /* config options here */
+  output: 'standalone',
+  images: {
+    unoptimized: true,
+    domains: ['localhost'],
+  },
+  // Disable server-side features since we're using static export
+  experimental: {
+    appDir: true,
+  },
 };
 
-export default nextConfig; 
+module.exports = nextConfig; 

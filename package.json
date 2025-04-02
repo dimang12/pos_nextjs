@@ -1,14 +1,16 @@
 {
-  "name": "pos",
+  "name": "pos-system",
   "version": "0.1.0",
   "private": true,
-  "type": "module",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "migrate": "node src/db/migrate.js"
+    "migrate": "node src/db/migrate.cjs"
   },
   "dependencies": {
     "@emotion/cache": "^11.11.0",
@@ -17,6 +19,7 @@
     "@hookform/resolvers": "^5.0.0",
     "@mui/icons-material": "^5.15.11",
     "@mui/material": "^5.15.11",
+    "@mui/x-date-pickers": "^6.19.6",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-select": "^2.1.6",
     "@radix-ui/react-slot": "^1.1.2",
@@ -28,6 +31,7 @@
     "bcryptjs": "^2.4.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^2.30.0",
     "dotenv": "^16.4.5",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.486.0",
